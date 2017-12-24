@@ -1,5 +1,7 @@
 package com.marla.api.model
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+
 /**
  * A job to be published on the queue
  *
@@ -9,6 +11,5 @@ package com.marla.api.model
  */
 data class Job(val clientId: String, val script: String) {
 
-    // TODO use Jackson
-    fun toJSON(): String = this.toString()
+    fun toJSON(): String = jacksonObjectMapper().writeValueAsString(this)
 }
