@@ -10,8 +10,8 @@ import redis.clients.jedis.JedisPool
  */
 @Service
 class RedisJobsQueue(
-        private val pool: JedisPool,
-        @Value("\${maria.redis.queue.key}") private val queueKey: String
+    private val pool: JedisPool,
+    @Value("\${maria.redis.queue.key}") private val queueKey: String
 ) : JobsQueue {
 
     override fun publish(job: Job): Boolean {

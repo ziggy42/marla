@@ -11,8 +11,8 @@ class MarlaApiApplication {
 
     @Bean
     fun jedisPool(
-            @Value("\${marla.redis.host}") host: String,
-            @Value("\${marla.redis.port}") port: Int
+        @Value("\${marla.redis.host}") host: String,
+        @Value("\${marla.redis.port}") port: Int
     ): JedisPool = JedisPool(host, port)
 }
 
