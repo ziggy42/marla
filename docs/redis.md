@@ -1,11 +1,11 @@
-### Redis
+# Redis
 
-# Run
+### Run
 ```
 docker run --name redis --rm -d -p 6379:6379 redis:alpine
 ```
 
-# Interact
+### Interact
 ```
 nc -v localhost 6379
 ```
