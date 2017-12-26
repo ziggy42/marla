@@ -4,6 +4,7 @@ buildscript {
     ext.jackson_module_kotlin_version = '2.9.3'
     ext.kotlin_logging_version = '1.4.7'
     ext.logback_version = '1.0.13'
+    ext.konfig_version = '1.6.1.0'
 
     repositories {
         mavenCentral()
@@ -28,6 +29,7 @@ dependencies {
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_module_kotlin_version"
     compile "io.github.microutils:kotlin-logging:$kotlin_logging_version"
     compile "ch.qos.logback:logback-classic:$logback_version"
+    compile "com.natpryce:konfig:$konfig_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }

@@ -8,11 +8,14 @@ import mu.KotlinLogging
 import redis.clients.jedis.Jedis
 
 private val logger = KotlinLogging.logger {}
-private val queue = Jedis("localhost", 6379)
+private val queue = Jedis(config[redis.host], config[redis.port])
 private val mapper = jacksonObjectMapper()
 
+private var JOBS_QUEUE_KEY = config[redis.jobsQueue]
+private var RESULTS_QUEUE_KEY = config[redis.resultsQueue]
+
 fun getJob(): Job {
-    val json = queue.blpop("marla:waitQueue", "0")[1]
+    val json = queue.blpop(JOBS_QUEUE_KEY, "0")[1]
 
     logger.debug { "New value popped from queue: $json" }
 
@@ -24,5 +27,5 @@ fun publishResult(result: Result) {
 
     logger.debug { "Pushing value to queue: $json" }
 
-    queue.lpush("marla:resultQueue", json)
+    queue.lpush(RESULTS_QUEUE_KEY, json)
 }
