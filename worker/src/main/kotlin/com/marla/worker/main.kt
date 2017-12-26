@@ -1,11 +1,15 @@
 package com.marla.worker
 
-import monkey.`object`.Environment
-import monkey.ast.Parser
-import monkey.evaluator.Evaluator
-import monkey.lexer.StringLexer
+import mu.KotlinLogging
+import redis.clients.jedis.Jedis
+
+private val logger = KotlinLogging.logger {}
 
 fun main(args: Array<String>) {
-    val program = Parser(StringLexer("3 + 3")).parseProgram()
-    println(Evaluator.eval(program, Environment()).inspect())
+    val client = Jedis("localhost", 6379)
+    while (true) {
+        val job = client.blpop("marla:waitQueue", "0")
+
+        logger.debug { "New job received: $job" }
+    }
 }
