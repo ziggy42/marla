@@ -15,8 +15,9 @@ buildscript {
 }
 
 group 'com.marla'
-version '1.0-SNAPSHOT'
+version '0.0.1'
 
+apply plugin: 'application'
 apply plugin: 'kotlin'
 
 repositories {
@@ -32,6 +33,20 @@ dependencies {
     compile "com.natpryce:konfig:$konfig_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+}
+
+mainClassName = 'com.marla.worker.MainKt'
+
+jar {
+    from {
+        (configurations.runtime).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    manifest {
+        attributes 'Main-Class': 'com.marla.worker.MainKt'
+    }
 }
 
 compileKotlin {
