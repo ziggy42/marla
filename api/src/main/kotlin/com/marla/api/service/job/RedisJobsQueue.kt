@@ -12,7 +12,7 @@ import redis.clients.jedis.JedisPool
 @Service
 class RedisJobsQueue(
     private val pool: JedisPool,
-    @Value("\${maria.redis.queue.key}") private val queueKey: String
+    @Value("\${marla.redis.queue.key}") private val queueKey: String
 ) : JobsQueue {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
