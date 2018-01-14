@@ -7,7 +7,7 @@ html
     script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js')
   body
     div
-      textarea#c(name='textarea', rows='10', cols='50') Write something here
+      textarea#content(name='textarea', rows='10', cols='50')
       button#sendButton(name='button') Click me
     div
       h3 Messages:
@@ -21,7 +21,7 @@ html
       })
     script(type='text/javascript').
       document.getElementById("sendButton").addEventListener("click", (event) => {
-        send(document.getElementById("sendButton").innerHTML)
+        send(document.getElementById("content").value)
       }, false);
       
       function send(content) {
@@ -30,7 +30,6 @@ html
           body: JSON.stringify({ "clientId": "Andrea", script: content }),
           headers: new Headers({ 'Content-Type': 'application/json' })
         })
-          .then(res => res.json())
+          .then(response => console.log('Success:', response))
           .catch(error => console.error('Error:', error))
-          .then(response => console.log('Success:', response));
       }
