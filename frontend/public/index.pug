@@ -1,0 +1,36 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    title Marla
+    script(type='text/javascript', src='//cdn.jsdelivr.net/jquery/1.11.2/jquery.min.js')
+    script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js')
+  body
+    div
+      textarea#c(name='textarea', rows='10', cols='50') Write something here
+      button#sendButton(name='button') Click me
+    div
+      h3 Messages:
+      ol#messages
+    script(type='text/javascript').
+      const url = "!{WS_ENDPOINT}"
+      $(document).ready(() => {
+        const messageList = $("#messages")
+        const stompClient = Stomp.client(url)
+        stompClient.connect({}, () => stompClient.subscribe("/Andrea", (data) => messageList.append(`<li>${data.body}</li>`)))
+      })
+    script(type='text/javascript').
+      document.getElementById("sendButton").addEventListener("click", (event) => {
+        send(document.getElementById("sendButton").innerHTML)
+      }, false);
+      
+      function send(content) {
+        fetch("!{API_ENDPOINT}", {
+          method: 'POST',
+          body: JSON.stringify({ "clientId": "Andrea", script: content }),
+          headers: new Headers({ 'Content-Type': 'application/json' })
+        })
+          .then(res => res.json())
+          .catch(error => console.error('Error:', error))
+          .then(response => console.log('Success:', response));
+      }
