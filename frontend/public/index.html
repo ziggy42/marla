@@ -7,6 +7,12 @@
 </head>
 
 <body>
+
+    <div>
+        <textarea name="textarea" id="c" rows="10" cols="50">Write something here</textarea>
+        <button name="button" id="sendButton">Click me</button>
+    </div>
+
     <div>
         <h3>Messages:</h3>
         <ol id="messages"></ol>
@@ -14,15 +20,26 @@
 
     <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1.11.2/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-
+    <script type="text/javascript" src="js/websocket.js"></script>
     <script type="text/javascript">
-        $(document).ready(() => {
-            const messageList = $("#messages");
-            const stompClient = Stomp.client('ws://localhost:8090/stomp');
-            stompClient.connect({}, (frame) => {
-                stompClient.subscribe("/Andrea", (data) => messageList.append(`<li>${data.body}</li>`));
-            });
-        });
+        document.getElementById("sendButton").addEventListener("click", (event) => {
+            send(document.getElementById("sendButton").innerHTML)
+        }, false);
+
+        function send(content) {
+            fetch("http://localhost:8080/api/job", {
+                method: 'POST',
+                body: JSON.stringify({ "clientId": "Andrea", script: content }),
+                headers: new Headers({
+                    'Content-Type': 'application/json'
+                })
+            })
+                .then(res => res.json())
+                .catch(error => console.error('Error:', error))
+                .then(response => console.log('Success:', response));
+        }
+    </script>
+
     </script>
 </body>
 
