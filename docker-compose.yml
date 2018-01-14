@@ -10,14 +10,47 @@ services:
     links:
       - redis
 
+  websocket:
+    image: "marla/websocket"
+    ports:
+      - "8090:8090"
+    environment:
+      - MARLA_REDIS_HOST=redis
+    links:
+      - redis
+  
   worker:
     image: "marla/worker"
     environment:
       - REDIS_HOST=redis
     links:
       - redis
+  
+  frontend:
+    image: "marla/frontend"
+    ports:
+      - "3000:3000"
+    environment:
+      - WS_ENDPOINT=ws://localhost/stomp
+      - API_ENDPOINT=http://localhost/api/job
+    links:
+      - websocket
+      - api
 
   redis:
     image: "redis:alpine"
     ports:
       - "6379:6379"
+
+  nginx:
+    image: nginx
+    volumes:
+      - ./conf:/etc/nginx/conf.d/
+    ports:
+      - 80:80
+      - 443:443
+      - 8443:8443
+    links:
+      - frontend
+      - api
+      - websocket
