@@ -8,7 +8,7 @@ import mu.KotlinLogging
 import redis.clients.jedis.Jedis
 
 private val logger = KotlinLogging.logger {}
-private val queue = Jedis(config[redis.host], config[redis.port])
+private val queue = Jedis(config[redis.host], config[redis.open_port])
 private val mapper = jacksonObjectMapper()
 
 private var JOBS_QUEUE_KEY = config[redis.jobsQueue]

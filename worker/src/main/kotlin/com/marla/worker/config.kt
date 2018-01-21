@@ -10,7 +10,7 @@ import com.natpryce.konfig.overriding
 import com.natpryce.konfig.stringType
 
 object redis : PropertyGroup() {
-    val port by intType
+    val open_port by intType
     val host by stringType
     val jobsQueue by stringType
     val resultsQueue by stringType
