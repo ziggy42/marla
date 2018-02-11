@@ -1,8 +1,8 @@
 package com.marla.api.service.job
 
+import com.marla.api.config.QueueConfiguration
 import com.marla.api.model.Job
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import redis.clients.jedis.JedisPool
 
@@ -12,7 +12,7 @@ import redis.clients.jedis.JedisPool
 @Service
 class RedisJobsQueue(
     private val pool: JedisPool,
-    @Value("\${marla.redis.queue.key}") private val queueKey: String
+    private val queueConfiguration: QueueConfiguration
 ) : JobsQueue {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
@@ -21,7 +21,7 @@ class RedisJobsQueue(
         log.debug("Publishing new job for ${job.clientId}")
 
         this.pool.resource?.let {
-            it.lpush(queueKey, job.toJSON())
+            it.lpush(queueConfiguration.name, job.toJSON())
             it.close()
 
             log.debug("Job published successfully for ${job.clientId}")

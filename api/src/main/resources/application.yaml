@@ -1,0 +1,10 @@
+redis:
+  host: ${MARLA_REDIS_HOST}
+  port: 6379
+
+queue:
+  name: marla:waitQueue
+
+logging:
+  level:
+    com.marla.api: DEBUG

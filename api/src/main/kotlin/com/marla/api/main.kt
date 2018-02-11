@@ -1,6 +1,6 @@
 package com.marla.api
 
-import org.springframework.beans.factory.annotation.Value
+import com.marla.api.config.RedisConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -10,10 +10,7 @@ import redis.clients.jedis.JedisPool
 class MarlaApiApplication {
 
     @Bean
-    fun jedisPool(
-        @Value("\${marla.redis.host}") host: String,
-        @Value("\${marla.redis.port}") port: Int
-    ): JedisPool = JedisPool(host, port)
+    fun jedisPool(configuration: RedisConfiguration): JedisPool = JedisPool(configuration.host, configuration.port)
 }
 
 fun main(args: Array<String>) {
