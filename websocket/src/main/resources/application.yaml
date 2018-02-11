@@ -1,0 +1,13 @@
+redis:
+  host: ${MARLA_REDIS_HOST}
+  port: 6379
+
+queue:
+  name: marla:resultsQueue
+
+logging:
+  level:
+    com.marla.websocket: DEBUG
+
+server:
+  port: 8100
