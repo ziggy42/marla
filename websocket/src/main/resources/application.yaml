@@ -7,7 +7,7 @@ queue:
 
 logging:
   level:
-    com.marla.api: DEBUG
+    com.marla.websocket: DEBUG
 
 server:
   port: 8100
