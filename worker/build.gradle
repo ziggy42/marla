@@ -1,16 +1,21 @@
 buildscript {
-    ext.kotlin_version = '1.2.10'
+    ext.kotlin_version = '1.2.21'
+    ext.spring_boot_version = '2.0.0.RC1'
     ext.jedis_version = '2.9.0'
     ext.jackson_module_kotlin_version = '2.9.3'
-    ext.kotlin_logging_version = '1.4.7'
-    ext.logback_version = '1.0.13'
-    ext.konfig_version = '1.6.1.0'
+    ext.junit_version = '5.0.2'
 
     repositories {
         mavenCentral()
+        maven {
+            url 'https://repo.spring.io/libs-milestone'
+        }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-allopen:$kotlin_version"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:$spring_boot_version"
+        classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.2'
     }
 }
 
@@ -19,35 +24,35 @@ version '0.0.1'
 
 apply plugin: 'application'
 apply plugin: 'kotlin'
+apply plugin: 'kotlin-spring'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'org.junit.platform.gradle.plugin'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'https://repo.spring.io/libs-milestone'
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile project(":monkey")
+
     compile "redis.clients:jedis:$jedis_version"
     compile "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_module_kotlin_version"
-    compile "io.github.microutils:kotlin-logging:$kotlin_logging_version"
-    compile "ch.qos.logback:logback-classic:$logback_version"
-    compile "com.natpryce:konfig:$konfig_version"
+
+    compile "org.springframework.boot:spring-boot-starter-web:$spring_boot_version"
+    compile "org.springframework.boot:spring-boot-starter-test:$spring_boot_version"
+    compile "org.springframework.boot:spring-boot-starter-actuator:$spring_boot_version"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+
+    testCompile "org.junit.jupiter:junit-jupiter-api:$junit_version"
+    testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_version"
 }
 
 mainClassName = 'com.marla.worker.MainKt'
-
-jar {
-    from {
-        (configurations.runtime).collect {
-            it.isDirectory() ? it : zipTree(it)
-        }
-    }
-    manifest {
-        attributes 'Main-Class': 'com.marla.worker.MainKt'
-    }
-}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
