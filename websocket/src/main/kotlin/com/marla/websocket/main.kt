@@ -2,8 +2,8 @@ package com.marla.websocket
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.marla.websocket.config.RedisConfiguration
 import com.marla.websocket.service.ResultsDispatcher
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
@@ -13,9 +13,7 @@ import redis.clients.jedis.JedisPool
 class MarlaWebSocketApplication {
 
     @Bean
-    fun jedisPool(
-        @Value("\${marla.redis.host}") host: String,
-        @Value("\${marla.redis.port}") port: Int): JedisPool = JedisPool(host, port)
+    fun jedisPool(configuration: RedisConfiguration): JedisPool = JedisPool(configuration.host, configuration.port)
 
     @Bean
     fun objectMapper(): ObjectMapper = jacksonObjectMapper()

@@ -1,4 +1,4 @@
-package com.marla.websocket
+package com.marla.websocket.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.messaging.simp.config.MessageBrokerRegistry
