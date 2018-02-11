@@ -27,7 +27,7 @@ class Queue(
             return mapper.readValue(json)
         }
 
-        throw RuntimeException("Something went horribly wrong reading a new job from the queue")
+        throw RuntimeException("Couldn't obtain pool resource")
     }
 
     fun publishResult(result: Result) {

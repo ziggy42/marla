@@ -17,10 +17,15 @@ class ResultListenerService(
     private val log = LoggerFactory.getLogger(this.javaClass)
 
     fun getResult(): Result {
-        val json = pool.resource?.blpop(queueKey, "0")?.get(1)
+        pool.resource?.let {
+            val json = it.blpop(queueKey, "0")?.get(1)
+            it.close()
 
-        log.debug("New value popped from queue: $json")
+            log.debug("New value popped from queue: $json")
 
-        return mapper.readValue(json!!)
+            return mapper.readValue(json!!)
+        }
+
+        throw RuntimeException("Couldn't obtain pool resource")
     }
 }
