@@ -6,8 +6,10 @@ if [ $# -eq 0 ]; then
 fi
 VERSION=${1}
 
+REPO=andrearegistry.azurecr.io
+
 MODULES=("api" "frontend" "websocket" "worker")
 for MODULE in "${MODULES[@]}"; do
-    docker tag marla/${MODULE} repo.treescale.com/ziggy42/marla/${MODULE}:${VERSION}
-    docker push repo.treescale.com/ziggy42/marla/${MODULE}:${VERSION}
+    docker tag marla/${MODULE} ${REPO}/marla/${MODULE}:${VERSION}
+    docker push ${REPO}/marla/${MODULE}:${VERSION}
 done
