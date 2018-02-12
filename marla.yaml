@@ -1,0 +1,140 @@
+#########################################################################
+# API
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: api
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+      - name: api
+        image: andrearegistry.azurecr.io/marla/api:0.0.4
+        env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: private-repo-secret
+---
+#########################################################################
+# Worker
+#########################################################################
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: worker
+  labels:
+    app: worker
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: worker
+    spec:
+      containers:
+      - env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        image: andrearegistry.azurecr.io/marla/worker:0.0.4
+        name: worker
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: private-repo-secret
+---
+#########################################################################
+# Websocket
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket
+  labels:
+    app: websocket
+spec:
+  ports:
+  - port: 8100
+    name: http
+  selector:
+    app: websocket
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: websocket
+  labels:
+    app: websocket
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: websocket
+    spec:
+      containers:
+      - env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        image: andrearegistry.azurecr.io/marla/websocket:0.0.4
+        name: websocket
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: private-repo-secret
+---
+#########################################################################
+# Redis
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  ports:
+  - name: redis
+    port: 6379
+  selector:
+    app: redis
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - image: redis:alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+      restartPolicy: Always
+---
