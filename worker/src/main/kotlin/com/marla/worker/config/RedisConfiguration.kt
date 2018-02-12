@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component
 @Component
 @ConfigurationProperties(prefix = "redis")
 class RedisConfiguration {
-    var port: Int = 0
+    var portValue: Int = 0
     lateinit var host: String
 }

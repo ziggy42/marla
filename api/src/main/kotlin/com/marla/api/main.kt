@@ -10,7 +10,7 @@ import redis.clients.jedis.JedisPool
 class MarlaApiApplication {
 
     @Bean
-    fun jedisPool(configuration: RedisConfiguration): JedisPool = JedisPool(configuration.host, configuration.port)
+    fun jedisPool(configuration: RedisConfiguration): JedisPool = JedisPool(configuration.host, configuration.portValue)
 }
 
 fun main(args: Array<String>) {

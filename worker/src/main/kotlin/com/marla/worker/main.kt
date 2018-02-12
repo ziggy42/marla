@@ -13,7 +13,7 @@ import redis.clients.jedis.JedisPool
 class MarlaWorkerApplication {
 
     @Bean
-    fun jedisPool(configuration: RedisConfiguration) = JedisPool(configuration.host, configuration.port)
+    fun jedisPool(configuration: RedisConfiguration) = JedisPool(configuration.host, configuration.portValue)
 
     @Bean
     fun mapper() = jacksonObjectMapper()

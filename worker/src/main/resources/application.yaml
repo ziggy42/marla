@@ -1,6 +1,6 @@
 redis:
   host: ${MARLA_REDIS_HOST}
-  port: 6379
+  portValue: 6379
 
 queue:
   waitQueue: marla:waitQueue
