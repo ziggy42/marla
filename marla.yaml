@@ -138,3 +138,41 @@ spec:
         - containerPort: 6379
       restartPolicy: Always
 ---
+#########################################################################
+# Frontend
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  ports:
+  - name: frontend
+    port: 3000
+  selector:
+    app: frontend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: andrearegistry.azurecr.io/marla/frontend:0.0.5
+        env:
+        - name: API_ENDPOINT
+          value: http://api:8080
+        ports:
+        - containerPort: 3000
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: private-repo-secret
