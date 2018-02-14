@@ -25,7 +25,7 @@ html
       }, false);
       
       function send(content) {
-        fetch("!{API_ENDPOINT}", {
+        fetch("/job", {
           method: 'POST',
           body: JSON.stringify({ "clientId": "Andrea", script: content }),
           headers: new Headers({ 'Content-Type': 'application/json' })
