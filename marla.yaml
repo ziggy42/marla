@@ -19,7 +19,7 @@ kind: Deployment
 metadata:
   name: api
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -47,7 +47,7 @@ metadata:
   labels:
     app: worker
 spec:
-  replicas: 3
+  replicas: 2
   template:
     metadata:
       labels:
@@ -96,7 +96,7 @@ spec:
       - env:
         - name: MARLA_REDIS_HOST
           value: redis
-        image: andrearegistry.azurecr.io/marla/websocket:0.0.4
+        image: andrearegistry.azurecr.io/marla/websocket:0.0.5
         name: websocket
       restartPolicy: Always
       imagePullSecrets:
@@ -167,7 +167,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: andrearegistry.azurecr.io/marla/frontend:0.0.5
+        image: andrearegistry.azurecr.io/marla/frontend:0.0.8
         env:
         - name: API_ENDPOINT
           value: http://api:8080
