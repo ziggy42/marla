@@ -5,6 +5,8 @@ import com.marla.api.model.Enabled
 import com.marla.api.model.Job
 import com.marla.api.model.JobRequestStatus
 import com.marla.api.model.JobResponse
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpMethod
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestTemplate
 
@@ -15,8 +17,13 @@ class JobsService(
     private val gatekeeperConfiguration: GatekeeperConfiguration
 ) {
 
-    fun publishJob(job: Job): JobResponse {
-        val enabled = restTemplate.getForEntity("${gatekeeperConfiguration.endpoint}/", Enabled::class.java).body
+    fun publishJob(job: Job, headers: Map<String, String>): JobResponse {
+        val enabled = restTemplate.exchange(
+            "${gatekeeperConfiguration.endpoint}/",
+            HttpMethod.GET,
+            HttpEntity(headers),
+            Enabled::class.java
+        ).body
         if (!enabled!!.isEnabled) // TODO we intentionally want this to crash if body is null
             return JobResponse(JobRequestStatus.REJECTED)
 
