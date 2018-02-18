@@ -16,12 +16,7 @@ class MarlaApiApplication {
     fun jedisPool(configuration: RedisConfiguration): JedisPool = JedisPool(configuration.host, configuration.portValue)
 
     @Bean
-    fun restTemplate(): RestTemplate = RestTemplate().apply {
-        val messageConverter = MappingJackson2HttpMessageConverter()
-        messageConverter.setPrettyPrint(false)
-        messageConverter.objectMapper = ObjectMapper()
-        messageConverters.add(messageConverter)
-    }
+    fun restTemplate(): RestTemplate = RestTemplate()
 }
 
 fun main(args: Array<String>) {

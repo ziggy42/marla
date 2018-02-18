@@ -16,13 +16,13 @@ class JobsController(private val jobsService: JobsService) {
     @ResponseBody
     fun publish(
         @RequestBody job: Job,
-        @RequestHeader("x-request-id") xreq: String,
-        @RequestHeader("x-b3-traceid") xtraceid: String,
-        @RequestHeader("x-b3-spanid") xspanid: String,
-        @RequestHeader("x-b3-parentspanid") xparentspanid: String,
-        @RequestHeader("x-b3-sampled") xsampled: String,
-        @RequestHeader("x-b3-flags") xflags: String,
-        @RequestHeader("x-ot-span-context") xotspan: String
+        @RequestHeader("x-request-id") xreq: String?,
+        @RequestHeader("x-b3-traceid") xtraceid: String?,
+        @RequestHeader("x-b3-spanid") xspanid: String?,
+        @RequestHeader("x-b3-parentspanid") xparentspanid: String?,
+        @RequestHeader("x-b3-sampled") xsampled: String?,
+        @RequestHeader("x-b3-flags") xflags: String?,
+        @RequestHeader("x-ot-span-context") xotspan: String?
     ): JobResponse = jobsService.publishJob(
         job, mapOf(
             "x-request-id" to xreq,
