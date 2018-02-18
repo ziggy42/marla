@@ -50,7 +50,7 @@ dependencies {
     testRuntime "org.junit.jupiter:junit-jupiter-engine:$junit_version"
 }
 
-sourceCompatibility = 1.8
+mainClassName = 'com.marla.gatekeeper.MainKt'
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
