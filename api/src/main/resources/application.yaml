@@ -8,3 +8,6 @@ queue:
 logging:
   level:
     com.marla.api: DEBUG
+
+gatekeeper:
+  endpoint: ${MARLA_GATEKEEPER_ENDPOINT}
