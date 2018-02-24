@@ -8,4 +8,4 @@ queue:
 
 logging:
   level:
-    com.marla.api: DEBUG
+    com.marla.gatekeeper: DEBUG
