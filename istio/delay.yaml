@@ -1,0 +1,11 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: gatekeeper-test-delay
+spec:
+  destination:
+    name: gatekeeper
+  httpFault:
+    delay:
+      percent: 100
+      fixedDelay: 10s
