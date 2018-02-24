@@ -68,7 +68,7 @@ spec:
     spec:
       containers:
       - name: gatekeeper
-        image: andrearegistry.azurecr.io/marla/gatekeeper:0.0.1
+        image: andrearegistry.azurecr.io/marla/gatekeeper:0.0.2
         env:
         - name: MARLA_REDIS_HOST
           value: redis
@@ -210,7 +210,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: andrearegistry.azurecr.io/marla/frontend:0.0.8
+        image: andrearegistry.azurecr.io/marla/frontend:0.0.9
         env:
         - name: API_ENDPOINT
           value: http://api:8080
