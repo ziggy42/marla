@@ -27,10 +27,53 @@ spec:
     spec:
       containers:
       - name: api
-        image: andrearegistry.azurecr.io/marla/api:0.0.4
+        image: andrearegistry.azurecr.io/marla/api:0.0.10
         env:
         - name: MARLA_REDIS_HOST
           value: redis
+        - name: MARLA_GATEKEEPER_ENDPOINT
+          value: http://gatekeeper:8080/
+        ports:
+        - containerPort: 8080
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: private-repo-secret
+---
+#########################################################################
+# Gatekeeper
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatekeeper
+  labels:
+    app: gatekeeper
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: gatekeeper
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gatekeeper
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gatekeeper
+    spec:
+      containers:
+      - name: gatekeeper
+        image: andrearegistry.azurecr.io/marla/gatekeeper:0.0.1
+        env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        - name: QUEUE_MAXSIZE
+          value: 2
         ports:
         - containerPort: 8080
       restartPolicy: Always
