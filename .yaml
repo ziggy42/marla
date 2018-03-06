@@ -1,0 +1,651 @@
+#########################################################################
+# API
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  labels:
+    app: api
+spec:
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: api
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: api
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"77fb517dd12bd096837d43f4cd0987ecac794c4de4b46cf7df64d1fe96425001","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+      creationTimestamp: null
+      labels:
+        app: api
+    spec:
+      containers:
+      - env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        image: andrearegistry.azurecr.io/marla/api:0.0.4
+        name: api
+        ports:
+        - containerPort: 8080
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - api
+        - --drainDuration
+        - 2s
+        - --parentShutdownDuration
+        - 3s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15003
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 1s
+        - --statsdUdpAddress
+        - istio-mixer.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources: {}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      imagePullSecrets:
+      - name: private-repo-secret
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        image: docker.io/istio/proxy_init:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - args:
+        - -c
+        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
+          unlimited
+        command:
+        - /bin/sh
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: enable-core-dump
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: worker
+  name: worker
+spec:
+  replicas: 2
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"77fb517dd12bd096837d43f4cd0987ecac794c4de4b46cf7df64d1fe96425001","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+      creationTimestamp: null
+      labels:
+        app: worker
+    spec:
+      containers:
+      - env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        image: andrearegistry.azurecr.io/marla/worker:0.0.4
+        name: worker
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - worker
+        - --drainDuration
+        - 2s
+        - --parentShutdownDuration
+        - 3s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15003
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 1s
+        - --statsdUdpAddress
+        - istio-mixer.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources: {}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      imagePullSecrets:
+      - name: private-repo-secret
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        image: docker.io/istio/proxy_init:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - args:
+        - -c
+        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
+          unlimited
+        command:
+        - /bin/sh
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: enable-core-dump
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+#########################################################################
+# Websocket
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket
+  labels:
+    app: websocket
+spec:
+  ports:
+  - port: 8100
+    name: http
+  selector:
+    app: websocket
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: websocket
+  name: websocket
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"77fb517dd12bd096837d43f4cd0987ecac794c4de4b46cf7df64d1fe96425001","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+      creationTimestamp: null
+      labels:
+        app: websocket
+    spec:
+      containers:
+      - env:
+        - name: MARLA_REDIS_HOST
+          value: redis
+        image: andrearegistry.azurecr.io/marla/websocket:0.0.4
+        name: websocket
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - websocket
+        - --drainDuration
+        - 2s
+        - --parentShutdownDuration
+        - 3s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15003
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 1s
+        - --statsdUdpAddress
+        - istio-mixer.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources: {}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      imagePullSecrets:
+      - name: private-repo-secret
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        image: docker.io/istio/proxy_init:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - args:
+        - -c
+        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
+          unlimited
+        command:
+        - /bin/sh
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: enable-core-dump
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+#########################################################################
+# Redis
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  ports:
+  - name: redis
+    port: 6379
+  selector:
+    app: redis
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: redis
+  name: redis
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"77fb517dd12bd096837d43f4cd0987ecac794c4de4b46cf7df64d1fe96425001","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+      creationTimestamp: null
+      labels:
+        app: redis
+    spec:
+      containers:
+      - image: redis:alpine
+        name: redis
+        ports:
+        - containerPort: 6379
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - redis
+        - --drainDuration
+        - 2s
+        - --parentShutdownDuration
+        - 3s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15003
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 1s
+        - --statsdUdpAddress
+        - istio-mixer.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources: {}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        image: docker.io/istio/proxy_init:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - args:
+        - -c
+        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
+          unlimited
+        command:
+        - /bin/sh
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: enable-core-dump
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---
+#########################################################################
+# Frontend
+#########################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  ports:
+  - name: frontend
+    port: 3000
+  selector:
+    app: frontend
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  name: frontend
+spec:
+  replicas: 1
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/status: '{"version":"77fb517dd12bd096837d43f4cd0987ecac794c4de4b46cf7df64d1fe96425001","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
+      creationTimestamp: null
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - env:
+        - name: API_ENDPOINT
+          value: http://api:8080
+        image: andrearegistry.azurecr.io/marla/frontend:0.0.5
+        name: frontend
+        ports:
+        - containerPort: 3000
+        resources: {}
+      - args:
+        - proxy
+        - sidecar
+        - --configPath
+        - /etc/istio/proxy
+        - --binaryPath
+        - /usr/local/bin/envoy
+        - --serviceCluster
+        - frontend
+        - --drainDuration
+        - 2s
+        - --parentShutdownDuration
+        - 3s
+        - --discoveryAddress
+        - istio-pilot.istio-system:15003
+        - --discoveryRefreshDelay
+        - 1s
+        - --zipkinAddress
+        - zipkin.istio-system:9411
+        - --connectTimeout
+        - 1s
+        - --statsdUdpAddress
+        - istio-mixer.istio-system:9125
+        - --proxyAdminPort
+        - "15000"
+        - --controlPlaneAuthPolicy
+        - NONE
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTANCE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        image: docker.io/istio/proxy:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-proxy
+        resources: {}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1337
+        volumeMounts:
+        - mountPath: /etc/istio/proxy
+          name: istio-envoy
+        - mountPath: /etc/certs/
+          name: istio-certs
+          readOnly: true
+      imagePullSecrets:
+      - name: private-repo-secret
+      initContainers:
+      - args:
+        - -p
+        - "15001"
+        - -u
+        - "1337"
+        image: docker.io/istio/proxy_init:0.5.1
+        imagePullPolicy: IfNotPresent
+        name: istio-init
+        resources: {}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+      - args:
+        - -c
+        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
+          unlimited
+        command:
+        - /bin/sh
+        image: alpine
+        imagePullPolicy: IfNotPresent
+        name: enable-core-dump
+        resources: {}
+        securityContext:
+          privileged: true
+      restartPolicy: Always
+      volumes:
+      - emptyDir:
+          medium: Memory
+        name: istio-envoy
+      - name: istio-certs
+        secret:
+          optional: true
+          secretName: istio.default
+status: {}
+---

@@ -24,9 +24,4 @@ class JobProcessor(private val queue: Queue) {
 
         queue.publishResult(result)
     }
-
-    private fun evalProgram(job: Job): Result =
-        Result(job.clientId, Evaluator.eval(extractProgram(job), Environment()).inspect())
-
-    private fun extractProgram(job: Job): Program = Parser(StringLexer(job.script)).parseProgram()
 }

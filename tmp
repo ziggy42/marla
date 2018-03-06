@@ -1,0 +1,9 @@
+kubectl create --from-file - << EOF
+apiVersion: v1
+kind: Secret
+metadata:
+  name: private-registry
+  data:
+    .dockerconfigjson: "$(cat ~/.docker/config.json | /usr/bin/base64)"
+  type: kubernetes.io/dockerconfigjson
+EOF
