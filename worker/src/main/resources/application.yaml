@@ -6,6 +6,16 @@ queue:
   waitQueue: marla:waitQueue
   resultsQueue: marla:resultsQueue
 
+ssh:
+  username: ${MARLA_SSH_USERNAME}
+  password: ${MARLA_SSH_PASSWORD}
+  host: ${MARLA_SSH_HOST}
+
+eth:
+  address: ${MARLA_ETH_ADDRESS}
+  passphrase: ${MARLA_ETH_PASSPHRASE}
+  ipcPath: ${MARLA_ETH_IPCPATH}
+
 logging:
   level:
     com.marla.worker: DEBUG
