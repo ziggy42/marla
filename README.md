@@ -4,7 +4,7 @@
 
 ## Run on k8s
 ```
-kubectl apply -f marla.yaml
+kubectl apply -f <(istioctl kube-inject -f marla.yaml)
 ```
 
 ## Test locally
